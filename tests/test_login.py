@@ -9,7 +9,7 @@ def wd(request):
     return wd
 
 
-def test_example(wd):
+def test_login(wd):
     wd.get("http://localhost/litecart/admin/")
     wd.find_element_by_name("username").send_keys("admin")
     wd.find_element_by_name("password").send_keys("admin")
