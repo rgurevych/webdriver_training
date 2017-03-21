@@ -26,3 +26,13 @@ def check_left_sumbenu_elements(wd, i, submenu_length):
     for j in range(0, submenu_length):
         wd.find_elements_by_css_selector("li#app-")[i].find_elements_by_css_selector("li")[j].click()
         assert len(wd.find_elements_by_css_selector("td#content h1")) == 1
+
+
+def open_main_page(wd):
+    wd.get("http://localhost/litecart/")
+
+
+def check_stickers_presence(wd):
+    products_list = wd.find_elements_by_css_selector("li.product")
+    for product in products_list:
+        assert len(product.find_elements_by_css_selector("div[class ^= sticker]")) == 1
