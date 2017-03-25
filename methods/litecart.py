@@ -1,4 +1,3 @@
-import time
 
 def login_to_admin(wd):
     wd.get("http://localhost/litecart/admin/")
@@ -86,3 +85,88 @@ def check_zones_abc(wd):
             else:
                 zones.append(country_in_list)
         assert zones == sorted(zones)
+
+
+def check_product_page(wd):
+    open_main_page(wd)
+    product = wd.find_element_by_css_selector("div#box-campaigns li.product")
+
+    #product name
+    mp_product_name = product.find_element_by_css_selector("div.name").text
+
+    #regular price properties obtaining from main page
+    regular_price = product.find_element_by_css_selector("s.regular-price")
+    main_page_regular_price = regular_price.text
+    regular_price_color = regular_price.value_of_css_property("color")
+    regular_price_color_RGB = define_RGB_values(regular_price_color)
+    regular_price_font_size = regular_price.value_of_css_property("font-size")
+    regular_price_font_size_float = define_font_size(regular_price_font_size)
+    regular_price_text_decoration = regular_price.value_of_css_property("text-decoration")
+
+    #action price properties obtaining from main page
+    action_price = product.find_element_by_css_selector("strong.campaign-price")
+    main_page_action_price = action_price.text
+    action_price_color = action_price.value_of_css_property("color")
+    action_price_color_RGB = define_RGB_values(action_price_color)
+    action_price_font_size = action_price.value_of_css_property("font-size")
+    action_price_font_size_float = define_font_size(action_price_font_size)
+    action_price_font_weight = action_price.value_of_css_property("font-weight")
+
+    #main page properties verification
+    regular_price_color_check(regular_price_color_RGB)
+    action_price_color_check(action_price_color_RGB)
+    assert action_price_font_size_float > regular_price_font_size_float
+    assert regular_price_text_decoration == "line-through"
+    assert action_price_font_weight == "bold" or action_price_font_weight == "900"
+
+    #open product page
+    product.click()
+    # product name
+    product_name = wd.find_element_by_css_selector("h1.title").text
+    # regular price properties obtaining from product page
+    product_regular_price = wd.find_element_by_css_selector("s.regular-price")
+    product_page_regular_price = product_regular_price.text
+    product_regular_price_color = product_regular_price.value_of_css_property("color")
+    product_regular_price_color_RGB = define_RGB_values(product_regular_price_color)
+    product_regular_price_font_size = product_regular_price.value_of_css_property("font-size")
+    product_regular_price_font_size_float = define_font_size(product_regular_price_font_size)
+    product_regular_price_text_decoration = product_regular_price.value_of_css_property("text-decoration")
+    # action price properties obtaining from product page
+    product_action_price = wd.find_element_by_css_selector("strong.campaign-price")
+    product_page_action_price = product_action_price.text
+    product_action_price_color = product_action_price.value_of_css_property("color")
+    product_action_price_color_RGB = define_RGB_values(product_action_price_color)
+    product_action_price_font_size = product_action_price.value_of_css_property("font-size")
+    product_action_price_font_size_float = define_font_size(product_action_price_font_size)
+    product_action_price_font_weight = product_action_price.value_of_css_property("font-weight")
+
+    #compliance verification
+    assert mp_product_name == product_name
+    assert main_page_regular_price == product_page_regular_price
+    assert main_page_action_price == product_page_action_price
+
+    #product page properties verification
+    regular_price_color_check(product_regular_price_color_RGB)
+    action_price_color_check(product_action_price_color_RGB)
+    assert product_action_price_font_size_float > product_regular_price_font_size_float
+    assert product_regular_price_text_decoration == "line-through"
+    assert product_action_price_font_weight == "bold" or product_action_price_font_weight == "700"
+
+
+def define_RGB_values(color):
+    cleared_color = color[color.find("(")+1:-1]
+    color_RGB = [int(color) for color in cleared_color.replace(",", "").split(" ")]
+    return color_RGB
+
+
+def regular_price_color_check(color_RGB):
+    assert color_RGB[0] == color_RGB[1] == color_RGB[2]
+
+
+def action_price_color_check(color_RGB):
+    assert color_RGB[1] == 0 and color_RGB[2] == 0
+
+
+def define_font_size(font_size_string):
+    font_size = float(font_size_string[:-2])
+    return (font_size)
