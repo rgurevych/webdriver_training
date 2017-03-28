@@ -1,8 +1,10 @@
 import time
 from selenium.webdriver.common.keys import Keys
 from random import randint
+from methods import generators
+import os.path
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 
 
@@ -210,3 +212,48 @@ def user_login(wd, email):
     wd.find_element_by_name("email").send_keys(email)
     wd.find_element_by_name("password").send_keys("Pa$$w0rd1")
     wd.find_element_by_name("login").click()
+
+
+def add_new_product(wd, name):
+    wd.find_element_by_link_text("Catalog").click()
+    wd.find_element_by_link_text("Add New Product").click()
+    wd.find_element_by_css_selector("input[name = status][value = '1']").click()
+    wd.find_element_by_name("name[en]").send_keys(name)
+    wd.find_element_by_name("code").send_keys(generators.generate_code())
+    wd.find_element_by_name("new_images[]").send_keys(picture_file_name())
+    wd.find_element_by_name("date_valid_from").send_keys("03/28/2017")
+    wd.find_element_by_name("date_valid_to").send_keys("03/28/2018")
+
+    wd.find_element_by_link_text("Information").click()
+    select_manufacturer = Select(wd.find_element_by_name("manufacturer_id"))
+    select_manufacturer.select_by_visible_text("ACME Corp.")
+    wd.find_element_by_name("keywords").send_keys("Butterfly")
+    wd.find_element_by_name("short_description[en]").send_keys("Strange butterfly")
+    wd.find_element_by_name("head_title[en]").send_keys(name)
+
+    wd.find_element_by_link_text("Prices").click()
+    wd.find_element_by_name("purchase_price").clear()
+    wd.find_element_by_name("purchase_price").send_keys("40")
+    select_currency = Select(wd.find_element_by_name("purchase_price_currency_code"))
+    select_currency.select_by_visible_text("Euros")
+    wd.find_element_by_name("prices[USD]").send_keys("60")
+    wd.find_element_by_name("gross_prices[USD]").clear()
+    wd.find_element_by_name("gross_prices[USD]").send_keys("60")
+    wd.find_element_by_name("prices[EUR]").send_keys("50")
+    wd.find_element_by_name("gross_prices[EUR]").clear()
+    wd.find_element_by_name("gross_prices[EUR]").send_keys("50")
+    wd.find_element_by_name("save").click()
+
+
+def picture_file_name():
+    path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pictures", "IMG_2295.jpg"))
+    return path
+
+
+def verify_product_presence(wd, name):
+    wd.find_element_by_link_text("Catalog").click()
+    products_list = wd.find_elements_by_css_selector("tr.row")
+    product_names = []
+    for row in products_list:
+        product_names.append(row.find_elements_by_css_selector("td")[2].text)
+    assert name in product_names
