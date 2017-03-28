@@ -1,3 +1,10 @@
+import time
+from selenium.webdriver.common.keys import Keys
+from random import randint
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 def login_to_admin(wd):
     wd.get("http://localhost/litecart/admin/")
@@ -170,3 +177,36 @@ def action_price_color_check(color_RGB):
 def define_font_size(font_size_string):
     font_size = float(font_size_string[:-2])
     return (font_size)
+
+def new_user_registration(wd, email):
+    wd.find_element_by_link_text("New customers click here").click()
+    wd.find_element_by_name("firstname").send_keys("Tester")
+    wd.find_element_by_name("lastname").send_keys("Mustermann")
+    wd.find_element_by_name("address1").send_keys("Mainstr. 15")
+    wd.find_element_by_name("postcode").send_keys("65432")
+    wd.find_element_by_name("city").send_keys("New-York")
+    wd.find_element_by_css_selector("span.select2-selection__arrow").click()
+    wd.find_element_by_css_selector("input.select2-search__field").click()
+    wd.find_element_by_css_selector("input.select2-search__field").send_keys("United States" + Keys.ENTER)
+    wd.find_element_by_css_selector("select[name = zone_code]").click()
+    states = wd.find_elements_by_css_selector("select[name = zone_code] option")
+    states[randint(0, len(states)-1)].click()
+    wd.find_element_by_name("email").send_keys(email)
+    wd.find_element_by_name("phone").send_keys("+150512345678")
+    if wd.find_element_by_name("newsletter").is_selected():
+        wd.find_element_by_name("newsletter").click()
+    wd.find_element_by_name("password").send_keys("Pa$$w0rd1")
+    wd.find_element_by_name("confirmed_password").send_keys("Pa$$w0rd1")
+    wd.find_element_by_name("create_account").click()
+
+
+def user_logout(wd):
+    open_main_page(wd)
+    wd.find_element_by_link_text("Logout").click()
+
+
+def user_login(wd, email):
+    open_main_page(wd)
+    wd.find_element_by_name("email").send_keys(email)
+    wd.find_element_by_name("password").send_keys("Pa$$w0rd1")
+    wd.find_element_by_name("login").click()
