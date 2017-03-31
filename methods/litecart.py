@@ -257,3 +257,27 @@ def verify_product_presence(wd, name):
     for row in products_list:
         product_names.append(row.find_elements_by_css_selector("td")[2].text)
     assert name in product_names
+
+
+def add_product_to_cart(wd, number):
+    wd.find_element_by_css_selector("li.product").click()
+    if len(wd.find_elements_by_name("options[Size]")) > 0:
+        select_size = Select(wd.find_element_by_name("options[Size]"))
+        select_size.select_by_visible_text("Small")
+    wd.find_element_by_name("add_cart_product").click()
+    wait = WebDriverWait(wd, 3)
+    wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, "span.quantity"), str(number)))
+
+
+def open_cart(wd):
+    wd.find_element_by_partial_link_text("Checkout").click()
+
+
+def delete_all_products_from_cart(wd):
+    while(len(wd.find_elements_by_css_selector("table.dataTable td.item")) > 0):
+        wait = WebDriverWait(wd, 3)
+        if len(wd.find_elements_by_css_selector("ul.shortcuts a")) > 0:
+            wd.find_element_by_css_selector("ul.shortcuts a").click()
+        wd.find_element_by_name("remove_cart_item").click()
+        table_line = wd.find_element_by_css_selector("table.dataTable td.item")
+        wait.until(EC.staleness_of(table_line))
