@@ -281,3 +281,25 @@ def delete_all_products_from_cart(wd):
         wd.find_element_by_name("remove_cart_item").click()
         table_line = wd.find_element_by_css_selector("table.dataTable td.item")
         wait.until(EC.staleness_of(table_line))
+
+
+def check_links_on_country_page(wd):
+    wait = WebDriverWait(wd, 10)
+    open_new_country_creation_form(wd)
+    links_list = wd.find_elements_by_css_selector("i.fa.fa-external-link")
+    main_window = wd.current_window_handle
+    opened_windows = wd.window_handles
+    for link in links_list:
+        link.click()
+        wait.until(EC.new_window_is_opened(opened_windows))
+        new_windows = wd.window_handles
+        for window in opened_windows:
+            new_windows.remove(window)
+        wd.switch_to_window(new_windows[0])
+        wd.close()
+        wd.switch_to_window(main_window)
+
+
+def open_new_country_creation_form(wd):
+    wd.get("http://localhost/litecart/admin/?app=countries&doc=countries")
+    wd.find_element_by_css_selector("a.button").click()
