@@ -303,3 +303,22 @@ def check_links_on_country_page(wd):
 def open_new_country_creation_form(wd):
     wd.get("http://localhost/litecart/admin/?app=countries&doc=countries")
     wd.find_element_by_css_selector("a.button").click()
+
+
+def open_products_links_and_check_log(wd):
+    open_products_list(wd)
+    products_list = wd.find_elements_by_css_selector("tr.row")
+    log = wd.get_log("browser")
+    for i in range(0, len(products_list)):
+        row = wd.find_elements_by_css_selector("tr.row")[i]
+        if len(row.find_elements_by_css_selector("i.fa.fa-folder")) == 0 and \
+                        len(row.find_elements_by_css_selector("i.fa.fa-folder-open")) == 0:
+            row.find_element_by_css_selector("a").click()
+            assert wd.get_log("browser") == log
+            open_products_list(wd)
+        else:
+            pass
+
+
+def open_products_list(wd):
+    wd.get("http://localhost/litecart/admin/?app=catalog&doc=catalog&category_id=1")
